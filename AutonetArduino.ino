@@ -1,3 +1,4 @@
+//Color Sensor should be connected to 49(O)-53(S3)
 #include <Multiservo.h>
 char inChar;
 String BufferA, BufferB, BufferC;
@@ -63,30 +64,54 @@ void ProcessIn1(char inCh) {
   }
 }
 
+int GetHue() {
+  digitalWrite(50,HIGH);
+  digitalWrite(51,LOW);
+  digitalWrite(52, LOW);
+  digitalWrite(53, LOW);
+  int R = 255 - pulseIn(49, LOW);
+  digitalWrite(52, HIGH);
+  digitalWrite(53, HIGH);
+  int G = 255 - pulseIn(49, LOW);
+  digitalWrite(52, LOW);
+  digitalWrite(53, HIGH);
+  int B = 255 - pulseIn(49, LOW);
+  int V = max(R, max(G, B));
+  int M = min(R, min(G, B));
+
+  int H = 0;
+
+  if (V == R && G >= B) {
+    H = 60 * (G - B) / (V - M);
+  } else if (V == R && G < B) {
+    H = 60 * (G - B) / (V - M) + 360;
+  } else if (V == G) {
+    H = 60 * (B - R) / (V - M) + 120;
+  } else if (V == B) {
+    H = 60 * (R - G) / (V - M) + 240;
+  }
+  return H;
+}
+
 void Execute(String A, String B, String C) {
   if (C == "Check") {
     Serial.println("OK");
-  } else
-  if (C == "SetDM") {
+  } else if (C == "SetDM") {
     DriveMode = A.toInt();
-  } else
-  if (C == "PinMode") {
+  } else if (C == "PinMode") {
     pinMode(B.toInt(), A.toInt());
-  } else
-  if (C == "DigitalWrite") {
+  } else if (C == "DigitalWrite") {
     digitalWrite(B.toInt(), A.toInt());
-  } else
-  if (C == "AnalogWrite") {
+  } else if (C == "AnalogWrite") {
     analogWrite(B.toInt(), A.toInt());
-  } else
-  if (C == "AnalogRead") {
+  } else if (C == "AnalogRead") {
     Serial.println(analogRead(B.toInt()));
-  } else
-  if (C == "DigitalRead") {
+  } else if (C == "DigitalRead") {
     Serial.println(digitalRead(B.toInt()));
-  } else
-  if (C == "SetServo") {
+  } else if (C == "SetServo") {
     srv[B.toInt()].write(A.toInt());
+  } else if (C == "GetHue") {
+    Serial.println(GetHue());
   } else
-  Serial.println("Unknown Command "+C);
+    Serial.println("Unknown Command " + C);
 }
