@@ -9,10 +9,17 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   for (int i = 0; i < 12; i++) {
-
+    
     srv[i].attach(i);
 
   }
+ pinMode(49,INPUT);
+ pinMode(50,OUTPUT);
+ pinMode(51,OUTPUT);
+ pinMode(52,OUTPUT);
+ pinMode(53,OUTPUT);
+ pinMode(13,OUTPUT);
+  
 }
 
 void loop() {
@@ -65,6 +72,8 @@ void ProcessIn1(char inCh) {
 }
 
 int GetHue() {
+  digitalWrite(13,HIGH);
+  delay(50);
   digitalWrite(50,HIGH);
   digitalWrite(51,LOW);
   digitalWrite(52, LOW);
@@ -78,7 +87,6 @@ int GetHue() {
   int B = 255 - pulseIn(49, LOW);
   int V = max(R, max(G, B));
   int M = min(R, min(G, B));
-
   int H = 0;
 
   if (V == R && G >= B) {
@@ -90,6 +98,7 @@ int GetHue() {
   } else if (V == B) {
     H = 60 * (R - G) / (V - M) + 240;
   }
+  digitalWrite(13,LOW);
   return H;
 }
 
