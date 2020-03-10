@@ -1,17 +1,18 @@
 //Color Sensor should be connected to 49(O)-53(S3)
 #include <Multiservo.h>
+#include <Ultrasonic.h>
 char inChar;
 String BufferA, BufferB, BufferC;
 int readMode = 0, ColorId, DriveMode = 0;
 Multiservo srv[12];
-
+Ultrasonic USonic(11,12);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   for (int i = 0; i < 12; i++) {
     
     srv[i].attach(i);
-
+ 
   }
  pinMode(49,INPUT);
  pinMode(50,OUTPUT);
@@ -19,6 +20,8 @@ void setup() {
  pinMode(52,OUTPUT);
  pinMode(53,OUTPUT);
  pinMode(13,OUTPUT);
+ pinMode(2,OUTPUT);
+ digitalWrite(2,LOW);
   
 }
 
@@ -73,7 +76,7 @@ void ProcessIn1(char inCh) {
 
 int GetHue() {
   digitalWrite(13,HIGH);
-  delay(50);
+  delay(30);
   digitalWrite(50,HIGH);
   digitalWrite(51,LOW);
   digitalWrite(52, LOW);
@@ -102,12 +105,26 @@ int GetHue() {
   return H;
 }
 
+int getBrightness(){
+   digitalWrite(13,HIGH);
+  delay(30);
+  digitalWrite(50,HIGH);
+  digitalWrite(51,LOW);
+  digitalWrite(52, HIGH);
+  digitalWrite(53, LOW);
+
+   return 255 - pulseIn(49, LOW);
+   digitalWrite(13,LOW);
+}
+
 void Execute(String A, String B, String C) {
   if (C == "Check") {
     Serial.println("OK");
   } else if (C == "SetDM") {
     DriveMode = A.toInt();
-  } else if (C == "PinMode") {
+  } else if(C == "GetDM"){
+    Serial.println(DriveMode);
+  }else if (C == "PinMode") {
     pinMode(B.toInt(), A.toInt());
   } else if (C == "DigitalWrite") {
     digitalWrite(B.toInt(), A.toInt());
@@ -120,7 +137,9 @@ void Execute(String A, String B, String C) {
   } else if (C == "SetServo") {
     srv[B.toInt()].write(A.toInt());
   } else if (C == "GetHue") {
-    Serial.println(GetHue());
+    Serial.println(GetHue());   
+  } else if (C == "GetSonic") {
+    Serial.println(USonic.read());
   } else
     Serial.println("Unknown Command " + C);
 }
