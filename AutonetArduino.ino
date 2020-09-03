@@ -2,7 +2,7 @@
 #include <Multiservo.h>
 #include <Ultrasonic.h>
 char inChar;
-String BufferA, BufferB, BufferC;
+String RegA, RegB, RegC;
 int readMode = 0, ColorId, DriveMode = 0;
 Multiservo srv[12];
 Ultrasonic USonic(11,12);
@@ -22,7 +22,10 @@ void setup() {
  pinMode(13,OUTPUT);
  pinMode(2,OUTPUT);
  digitalWrite(2,LOW);
-  
+  pinMode(8,OUTPUT);
+pinMode(7,OUTPUT);
+pinMode(6,OUTPUT);
+pinMode(5,OUTPUT);
 }
 
 void loop() {
@@ -37,37 +40,37 @@ void loop() {
 void ProcessIn1(char inCh) {
   switch (inCh) {
     case '(':
-      BufferA = "";
+      RegA = "";
       readMode = 1;
       break;
     case ')':
       readMode = 0;
       break;
     case '[':
-      BufferB = "";
+      RegB = "";
       readMode = 2;
       break;
     case ']':
       readMode = 0;
       break;
     case '<':
-      BufferC = "";
+      RegC = "";
       readMode = 3;
       break;
     case '>':
       readMode = 0;
-      Execute(BufferA, BufferB, BufferC);
+      Execute(RegA, RegB, RegC);
       break;
     default:
       switch (readMode) {
         case 1:
-          BufferA = BufferA + inCh;
+          RegA = RegA + inCh;
           break;
         case 2:
-          BufferB = BufferB + inCh;
+          RegB = RegB + inCh;
           break;
         case 3:
-          BufferC = BufferC + inCh;
+          RegC = RegC + inCh;
           break;
       }
       break;
@@ -140,6 +143,148 @@ void Execute(String A, String B, String C) {
     Serial.println(GetHue());   
   } else if (C == "GetSonic") {
     Serial.println(USonic.read());
+  } else if (C == "StepMotor"){
+    StepMotor(A.toInt());
   } else
     Serial.println("Unknown Command " + C);
+}
+
+void StepMotor(int steps){
+  //int steps = degree/7;
+  if (steps>0){
+  for(int i=0;i<steps;i++)
+  motStep(); 
+  } else {
+  steps = -steps;  
+  for(int i=0;i<steps;i++)
+  antiStep(); 
+  }
+  
+}
+
+
+void motStep() {
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+/* digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+ 
+ digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,0);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ 
+ digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+
+ digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,0);*/
+}
+
+void antiStep() {
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+ 
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,0);
+ digitalWrite(5,1);
+ delay(10);
+  digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,0);
+ digitalWrite(5,0);
+ delay(10);
+
+ digitalWrite(8,0);
+ digitalWrite(7,1);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+ digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+
+ digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,1);
+ digitalWrite(5,0);
+ delay(10);
+  digitalWrite(8,1);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,0);
+ delay(10);
+
+  digitalWrite(8,0);
+ digitalWrite(7,0);
+ digitalWrite(6,0);
+ digitalWrite(5,0);
 }
